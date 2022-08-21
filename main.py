@@ -29,7 +29,7 @@ See pink:/etc/logrotate.d/rsyslog-local3 for configuration details.
 See hardware_notes.txt for sensor and interconnection details.
 '''
 
-__version__ = "0.1.2.9"
+__version__ = "0.1.3.0"
 __repo__ = "https://github.com/mew-cx/CircuitPython_dust_wx_station.git"
 __board_id__ = 'adafruit_feather_esp32s2' # board.board_id
 __impl_name__ = 'circuitpython'           # sys.implementation.name
@@ -53,6 +53,8 @@ import adafruit_dotstar
 import adafruit_htu21d
 import adafruit_mpl3115a2
 from adafruit_sps30.i2c import SPS30_I2C
+import rtc
+import adafruit_ntp
 
 import rfc5424
 from secrets import secrets
@@ -128,6 +130,12 @@ class TheApp:
         sock.settimeout(5)      # [seconds]
         sock.connect((self.HOST, self.PORT))
         return sock
+
+    def GetNtpTime(self):
+        pool = socketpool.SocketPool(wifi.radio)
+        ntp = adafruit_ntp.NTP(pool, tz_offset=0)
+        print("ntp.datetime", ntp.datetime)
+        rtc.RTC().datetime = ntp.datetime
 
     def WriteToSyslog(self, sock, message, severity=rfc5424.Severity.INFO):
         syslog_msg = rfc5424.FormatSyslog(
@@ -208,6 +216,7 @@ app.SetDots(0xffffff, 0xff0000, 0x00ff00, 0x0000ff)
 time.sleep(1)
 app.ConnectToAP()
 app.SetDots(0x00ff00, 0x00ff00, 0x00ff00, 0x00ff00)
+app.GetNtpTime()
 
 try:
     with app.SocketToSyslog() as sock:

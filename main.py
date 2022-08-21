@@ -109,7 +109,6 @@ class TheApp:
         i2c = busio.I2C(board.SCL, board.SDA, frequency=100000)
 
         # Create the I2C sensor instances
-        self.ds1307  = adafruit_ds1307.DS1307(i2c)        # id 0x68
         self.htu21d  = adafruit_htu21d.HTU21D(i2c)        # id 0x40
         self.mpl3115 = adafruit_mpl3115a2.MPL3115A2(i2c)  # id 0x60
         self.sps30   = SPS30_I2C(i2c, fp_mode=True)       # id 0x69
@@ -134,7 +133,7 @@ class TheApp:
         syslog_msg = rfc5424.FormatSyslog(
             facility = rfc5424.Facility.LOCAL3,
             severity = severity,
-            timestamp = rfc5424.FormatTimestamp(self.ds1307.datetime),
+            timestamp = rfc5424.FormatTimestamp(),
             hostname = self.ipaddr,
             app_name = "dust",
             msg = message)
@@ -159,7 +158,7 @@ class TheApp:
 
     def AcquireData(self):
 
-        ts = rfc5424.FormatTimestamp(self.ds1307.datetime)
+        ts = rfc5424.FormatTimestamp()
 
         h = "{:0.1f},{:0.1f},{:0.0f},".format(
             self.htu21d.temperature,

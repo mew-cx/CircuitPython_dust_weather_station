@@ -29,7 +29,7 @@ See pink:/etc/logrotate.d/rsyslog-local3 for configuration details.
 See hardware_notes.txt for sensor and interconnection details.
 '''
 
-__version__ = "0.1.3.0"
+__version__ = "0.1.3.1"
 __repo__ = "https://github.com/mew-cx/CircuitPython_dust_wx_station.git"
 __board_id__ = 'adafruit_feather_esp32s2' # board.board_id
 __impl_name__ = 'circuitpython'           # sys.implementation.name
@@ -79,12 +79,13 @@ class TheApp:
         self.NUM_DOTS   = const(4)      # how many LEDs in the dotstar string
         self.SLEEP_MINS = const(5)      # sleep between measurements [minutes]
 
-    def SetDots(self, *args):
-        if args:
-            for i,val in enumerate(args):
-                self.dots[i] = val
-        else:
+    def SetDots(self, fill=None, *args):
+        if fill:
+            self.dots.fill(fill)
+        elif not len(args):
             self.dots.fill(0)
+        else:
+            (self.dots[i] for i,val in enumerate(args))
 
     def InitializeDevices(self):
         # SPI controls the 4-LED dotstar strip
